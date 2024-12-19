@@ -4,11 +4,11 @@ import { getDatabase, ref, set, get, child } from 'https://www.gstatic.com/fireb
 // Configuração do Firebase
 const firebaseConfig = {
     apiKey: "SUA_API_KEY",
-    authDomain: "SUA_AUTH_DOMAIN",
-    databaseURL: "SUA_DATABASE_URL",
-    projectId: "SUA_PROJECT_ID",
-    storageBucket: "SUA_STORAGE_BUCKET",
-    messagingSenderId: "SUA_MESSAGING_SENDER_ID",
+    authDomain: "horas-extras-b5e4b.firebaseapp.com",
+    databaseURL: "https://horas-extras-b5e4b-default-rtdb.firebaseio.com",
+    projectId: "horas-extras-b5e4b",
+    storageBucket: "horas-extras-b5e4b.appspot.com",
+    messagingSenderId: "SUA_MESSAGING_ID",
     appId: "SUA_APP_ID"
 };
 
