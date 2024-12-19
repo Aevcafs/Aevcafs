@@ -1,110 +1,59 @@
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js';
+import { getDatabase, ref, set, get, child } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js';
+
 // Configuração do Firebase
 const firebaseConfig = {
     apiKey: "SUA_API_KEY",
-    authDomain: "horas-extras-b5e4b.firebaseapp.com",
-    databaseURL: "https://horas-extras-b5e4b-default-rtdb.firebaseio.com",
-    projectId: "horas-extras-b5e4b",
-    storageBucket: "horas-extras-b5e4b.appspot.com",
-    messagingSenderId: "SUA_MESSAGING_ID",
+    authDomain: "SUA_AUTH_DOMAIN",
+    databaseURL: "SUA_DATABASE_URL",
+    projectId: "SUA_PROJECT_ID",
+    storageBucket: "SUA_STORAGE_BUCKET",
+    messagingSenderId: "SUA_MESSAGING_SENDER_ID",
     appId: "SUA_APP_ID"
 };
 
-// Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const registrosRef = database.ref('registros');
+// Inicialização do app Firebase
+const app = initializeApp(firebaseConfig);
 
-// Adicionar registro (exemplo)
-function adicionarRegistro(dados) {
-    registrosRef.push(dados);
+// Inicialização do Realtime Database
+const database = getDatabase(app);
+
+// Função para salvar dados no Realtime Database
+function saveData(key, value) {
+    const dbRef = ref(database, `example/${key}`);
+    set(dbRef, { value })
+        .then(() => {
+            console.log('Data saved successfully.');
+        })
+        .catch((error) => {
+            console.error('Error saving data:', error);
+        });
 }
 
-// Referências aos elementos
-const form = document.getElementById('form-registro');
-const tabela = document.getElementById('tabela-registros').querySelector('tbody');
-const btnRelatorioGeral = document.getElementById('gerar-relatorio');
-const btnRelatorioFuncionario = document.getElementById('gerar-relatorio-funcionario');
-const filtroFuncionario = document.getElementById('filtro-funcionario');
-
-// Adicionar registro no Firebase
-form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const funcionario = document.getElementById('funcionario').value.trim();
-    const horas = parseFloat(document.getElementById('horas').value);
-    const data = document.getElementById('data').value;
-
-    if (!funcionario || isNaN(horas) || !data) {
-        alert('Preencha todos os campos corretamente.');
-        return;
-    }
-
-    registrosRef.push({ funcionario, horas, data });
-    form.reset();
-});
-
-// Listar registros do Firebase
-function listarRegistros() {
-    registrosRef.on('value', (snapshot) => {
-        tabela.innerHTML = '';
-        snapshot.forEach((childSnapshot) => {
-            const key = childSnapshot.key;
-            const registro = childSnapshot.val();
-
-            const row = tabela.insertRow();
-            row.innerHTML = `
-                <td>${registro.funcionario}</td>
-                <td>${registro.horas}</td>
-                <td>${registro.data}</td>
-                <td>
-                    <button class="deletar" data-key="${key}">Deletar</button>
-                </td>
-            `;
-        });
-
-        document.querySelectorAll('.deletar').forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                const key = e.target.dataset.key;
-                registrosRef.child(key).remove();
-            });
-        });
-    });
-}
-
-// Gera relatório em texto ou PDF
-function gerarRelatorio(filtrarFuncionario = null) {
-    registrosRef.once('value', (snapshot) => {
-        let saldo = 0;
-        let conteudo = `Relatório de Horas\n\n`;
-
-        snapshot.forEach((childSnapshot) => {
-            const registro = childSnapshot.val();
-
-            if (!filtrarFuncionario || registro.funcionario === filtrarFuncionario) {
-                saldo += registro.horas;
-                conteudo += `Funcionário: ${registro.funcionario}, Horas: ${registro.horas}, Data: ${registro.data}\n`;
+// Função para buscar dados do Realtime Database
+function fetchData() {
+    const dbRef = ref(database);
+    get(child(dbRef, 'example/'))
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+            } else {
+                console.log('No data available.');
             }
+        })
+        .catch((error) => {
+            console.error('Error fetching data:', error);
         });
-
-        conteudo += `\nSaldo Total: ${saldo} horas`;
-
-        // Cria e baixa o relatório como PDF
-        const blob = new Blob([conteudo], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `relatorio-${filtrarFuncionario || 'geral'}.pdf`;
-        a.click();
-        URL.revokeObjectURL(url);
-    });
 }
 
-// Eventos para gerar relatórios
-btnRelatorioGeral.addEventListener('click', () => gerarRelatorio());
-btnRelatorioFuncionario.addEventListener('click', () => {
-    const funcionario = filtroFuncionario.value.trim();
-    gerarRelatorio(funcionario);
+// Lida com o envio do formulário
+document.getElementById('dataForm').addEventListener('submit', (event) => {
+    event.preventDefault(); // Evita o envio padrão do formulário
+    const key = document.getElementById('key').value;
+    const value = document.getElementById('value').value;
+    saveData(key, value);
 });
 
-// Inicializa a listagem
-listarRegistros();
+// Lida com o clique no botão de buscar dados
+document.getElementById('fetchDataButton').addEventListener('click', fetchData);
