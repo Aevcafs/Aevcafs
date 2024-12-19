@@ -12,8 +12,15 @@ const firebaseConfig = {
     appId: "SUA_APP_ID"
 };
 
-// Inicialização do app Firebase
-const app = initializeApp(firebaseConfig);
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const registrosRef = database.ref('registros');
+
+// Adicionar registro (exemplo)
+function adicionarRegistro(dados) {
+    registrosRef.push(dados);
+}
 
 // Inicialização do Realtime Database
 const database = getDatabase(app);
