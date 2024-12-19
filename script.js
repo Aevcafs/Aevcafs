@@ -1,3 +1,7 @@
+/// script.js
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js';
+import { getDatabase, ref, push, onValue, remove } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js';
+
 // Configuração do Firebase
 const firebaseConfig = {
     apiKey: "SUA_API_KEY",
@@ -10,9 +14,10 @@ const firebaseConfig = {
 };
 
 // Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const registrosRef = database.ref('registros');
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const registrosRef = ref(database, 'registros');
+
 
 // Referências aos elementos
 const form = document.getElementById('form-registro');
