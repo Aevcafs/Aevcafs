@@ -1,7 +1,3 @@
-// Importar os módulos necessários
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js';
-import { getDatabase, ref, push, onValue, remove } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js';
-
 // Configuração do Firebase
 const firebaseConfig = {
     apiKey: "SUA_API_KEY",
@@ -13,16 +9,14 @@ const firebaseConfig = {
     appId: "SUA_APP_ID"
 };
 
-// Inicializar o Firebase App
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const registrosRef = database.ref('registros');
 
-// Referência ao nó 'registros' do banco de dados
-const registrosRef = ref(database, 'registros');
-
-// Função para adicionar registros (exemplo)
+// Adicionar registro (exemplo)
 function adicionarRegistro(dados) {
-    push(registrosRef, dados);
+    registrosRef.push(dados);
 }
 
 // Referências aos elementos
