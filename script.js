@@ -1,7 +1,4 @@
 // Configuração do Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
-
 const firebaseConfig = {
     apiKey: "SUA_API_KEY",
     authDomain: "horas-extras-b5e4b.firebaseapp.com",
@@ -13,9 +10,9 @@ const firebaseConfig = {
 };
 
 // Inicializar Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-const registrosRef = ref(database, 'registros');
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const registrosRef = database.ref('registros');
 
 // Referências aos elementos
 const form = document.getElementById('form-registro');
@@ -37,13 +34,13 @@ form.addEventListener('submit', (e) => {
         return;
     }
 
-    push(registrosRef, { funcionario, horas, data });
+    registrosRef.push({ funcionario, horas, data });
     form.reset();
 });
 
 // Listar registros do Firebase
 function listarRegistros() {
-    onValue(registrosRef, (snapshot) => {
+    registrosRef.on('value', (snapshot) => {
         tabela.innerHTML = '';
         snapshot.forEach((childSnapshot) => {
             const key = childSnapshot.key;
@@ -63,7 +60,7 @@ function listarRegistros() {
         document.querySelectorAll('.deletar').forEach((btn) => {
             btn.addEventListener('click', (e) => {
                 const key = e.target.dataset.key;
-                remove(ref(database, `registros/${key}`));
+                registrosRef.child(key).remove();
             });
         });
     });
@@ -71,7 +68,7 @@ function listarRegistros() {
 
 // Gera relatório em texto ou PDF
 function gerarRelatorio(filtrarFuncionario = null) {
-    onValue(registrosRef, (snapshot) => {
+    registrosRef.once('value', (snapshot) => {
         let saldo = 0;
         let conteudo = `Relatório de Horas\n\n`;
 
